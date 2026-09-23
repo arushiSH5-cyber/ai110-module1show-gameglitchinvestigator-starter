@@ -14,9 +14,16 @@ Document at least 3 bugs you found. Add rows as needed.
 
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
 |-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+| Guess `60`, secret `50` (Normal) | "Too High" hint telling me to go lower | Hint says "📈 Go HIGHER!" and score goes **up** by 5 | No error. Outcome is "Too High" but the message is backwards |
+| Guess `9` twice in a row (secret `50`) | "Too Low" both times | Guess 2 → "Too Low". Guess 3 → outcome **"Too High"** (+5 score). Same input gives a different result | No error. On even attempts the secret is cast to `str`, so `"9" > "50"` compares alphabetically |
+| Lose a game, then click **New Game 🔁** | Fresh game starts | Still shows "Game over. Start a new game to try again." Status never resets | `st.session_state.status` stays `"lost"`. Attempts reset to `0` instead of `1` |
+| Start a Normal game | 8 attempts allowed (sidebar says 8) | Banner says "Attempts left: 7". Game ends after 7 guesses | `attempts` initialized to `1` |
+| Type `abc` and submit | Error, attempt not consumed | Error shown, but an attempt is used up and `"abc"` is added to history | `That is not a number.` |
+| Type `50.9` (secret `50`) | Reject: not a whole number | Truncated to `50`, counts as a win | None |
+| Type `-5` | "Out of range" message | Accepted as a normal guess | None |
+| Switch difficulty to Easy | Secret within 1 to 20 | Sidebar says 1 to 20 but secret was `38`. Banner still says "between 1 and 100" | None |
+| Pick Hard | Harder than Normal | Hard range is 1 to 50, *smaller* than Normal's 1 to 100 | None |
+| Run `pytest` on the starter | Tests run | All 3 fail | `NotImplementedError: Refactor this function from app.py into logic_utils.py`. The tests also compare a tuple to a string (`result == "Win"`) |
 
 ---
 
