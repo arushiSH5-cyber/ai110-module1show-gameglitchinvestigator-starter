@@ -42,6 +42,12 @@ Document at least 3 bugs you found. Add rows as needed.
   and what it showed you about your code.
 - Did AI help you design or understand any tests? How?
 
+**Verification evidence**
+
+- **Unit tests:** `pytest` went from 3 failed (`NotImplementedError`) to 17 passed. Full output is in `test_results.txt` and the README. There is one regression test per bug. For example, `test_single_digit_guess_compares_numerically` checks that `check_guess(9, 50)` is "Too Low", which the string-comparison bug got wrong.
+- **Starter tests were buggy too:** they asserted `check_guess(50, 50) == "Win"`, but the function returns `("Win", "🎉 Correct!")`. They now unpack the outcome.
+- **Live app:** Reproduced every bug from the log with Streamlit's `AppTest` (a headless driver for `app.py`) before the fix, then re-ran the same script after it. Guess 60 vs 50 now says "Go LOWER" and costs 5 points. `abc`, `50.9` and `-5` show errors without using an attempt. **New Game** after a loss resets to "Attempts left: 8". Switching to Easy gives a secret within 1 to 20.
+
 ---
 
 ## 4. What did you learn about Streamlit and state?
