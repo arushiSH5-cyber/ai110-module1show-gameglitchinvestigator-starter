@@ -24,6 +24,21 @@ def start_new_game(difficulty: str):
     st.session_state.difficulty = difficulty
 
 
+def render_status(info_box, debug_box, low, high, attempts_left, difficulty, dev_mode):
+    info_box.info(
+        f"Guess a number between {low} and {high}. "
+        f"Attempts left: {attempts_left}"
+    )
+    if dev_mode:
+        with debug_box.container():
+            with st.expander("Developer Debug Info"):
+                st.write("Secret:", st.session_state.secret)
+                st.write("Attempts:", st.session_state.attempts)
+                st.write("Score:", st.session_state.score)
+                st.write("Difficulty:", difficulty)
+                st.write("History:", st.session_state.history)
+
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -42,6 +57,7 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+dev_mode = st.sidebar.toggle("Developer mode (show secret)", value=False)
 
 # FIX: Also start a new game when difficulty changes, so the secret matches the new range.
 if st.session_state.get("difficulty") != difficulty:
@@ -53,12 +69,10 @@ st.subheader("Make a guess")
 # the script so "Attempts left" reflects the guess that was just submitted.
 info_box = st.empty()
 
-with st.expander("Developer Debug Info"):
-    st.write("Secret:", st.session_state.secret)
-    st.write("Attempts:", st.session_state.attempts)
-    st.write("Score:", st.session_state.score)
-    st.write("Difficulty:", difficulty)
-    st.write("History:", st.session_state.history)
+# FIX: Debug panel was drawn before the guess was processed, so it lagged one guess
+# behind, and it revealed the secret to every player. It is now filled in at the end
+# of the script and only shown when Developer mode is on.
+debug_box = st.empty()
 
 raw_guess = st.text_input(
     "Enter your guess:",
@@ -83,10 +97,8 @@ if st.session_state.status != "playing":
         st.success("You already won. Start a new game to play again.")
     else:
         st.error("Game over. Start a new game to try again.")
-    info_box.info(
-        f"Guess a number between {low} and {high}. "
-        f"Attempts left: {attempt_limit - st.session_state.attempts}"
-    )
+    render_status(info_box, debug_box, low, high,
+                  attempt_limit - st.session_state.attempts, difficulty, dev_mode)
     st.stop()
 
 if submit:
@@ -126,10 +138,8 @@ if submit:
                 f"Score: {st.session_state.score}"
             )
 
-info_box.info(
-    f"Guess a number between {low} and {high}. "
-    f"Attempts left: {attempt_limit - st.session_state.attempts}"
-)
+render_status(info_box, debug_box, low, high,
+              attempt_limit - st.session_state.attempts, difficulty, dev_mode)
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
